@@ -1,0 +1,150 @@
+<pre>
+  BIP: TBD
+  Title: Path translations for hierarchical deterministic wallets
+  Author: teathsch
+  Status: Draft
+  Type: TBD
+  Created: 28-01-2014
+</pre>
+
+
+
+==Abstract==
+This proposal attempts to provide backwards compatible methods of preprocessing path specifiers with an enhanced syntax so that they may be converted into the simpler BIP32 compliant path specifiers.
+
+
+
+==Motivation==
+TODO: Add BIP32 background.
+
+===Improving general usability===
+BIP32 is explicitly conservative about how to structure wallets using extended keys and path specifiers.
+
+This proposal attempts to enhance the path specifier syntax while maintaining flexibility. For example, a syntax for relative paths is given. Additionally, a method and syntax for embedding general names/identifiers into paths is provided.
+
+Backwards compatibility is provided by making sure that all the of the methods can be implemented by preprocessing the enhanced syntax into the simpler BIP32 syntax.
+
+===Removing output ambiguity===
+The output of a BIP32 compliant program isn't specified.  Additionally, the output may be more than one object (i.e. an address and an extended key).
+
+This proposal attempts to address the issue by providing default output behavior which only outputs one object per path evaluation. Additionally, a method is provided to override the default output method.
+
+===Canonical name translation===
+Sequences of 32 bit integers do not readily facilitate the embedding of names into addresses.
+
+This proposal provides a method and syntax for embedding general names/identifiers into paths.
+
+====Improving transaction visibility====
+TODO: canonical name translation preserves this by carrying part of the parent fingerprint forward
+      constrained path fragments provide an explicit method for probablistically identifying child addresses
+
+==Copyright==
+This proposal is hereby placed in the public domain.
+
+
+
+
+==Rationale==
+TODO: Because the complexity of BIP32 means it is good as is and
+      our proposals can be achieved by preprocessing
+
+
+
+==Specification==
+
+
+===Path piping===
+TODO
+
+
+===Flipped output tags===
+The output of a BIP32 compliant program is ambiguous.
+
+It may be any of the following:
+
+ * A regular private key
+ * A regular address
+ * An extended key (public or private)
+ * A compound object consisting of an extended private key and a regular private key
+ * A compound object consisting of an extended public key and a regular address
+
+Although BIP32 isn't specific on the issue, but one may reasonably infer the following about how paths should be evaluated:
+
+Based on the recommended wallet structure in BIP32, a simple algorithm for determining what type of object to output as the result of a path evaluation would be the following:
+
+ * If the depth of the last node is less than 3, output an extended private or public key.
+
+ * Otherwise, output a public or private address, depending on the key type.
+
+BIP32 path specifiers are prepended with either an 'm' or and 'M'.
+
+ * An 'm' denotes that the output type will be either a regular private key or an extended private key, or both.
+ * An 'M' denotes that the output type will be either a regular public address or an extended public key, or both.
+
+Note: This isn't explicit in BIP32, but it appears that this is how it is meant to be interpreted based on the examples.
+
+In order to make path evaluations more flexible we exchange the 'm' for 'M' and the 'w' for 'W'.
+
+To make this more flexible, we extend this syntax by allowing the 'm' or 'M' to be exchanged with 'w' or 'W' respectively.
+
+If 'w' or 'W' is substituted for 'm' or 'M', then path evaluation will produce the opposite type; the "flipped" 'M' ('W') flips the output type.
+
+
+===Relative paths===
+
+BIP32 doesn't discuss whether relative path evaluations are allowed or how they should be interpreted.
+
+FIXME: clarify this this is the new proposal
+Relative paths are allowed via the following syntax
+
+ * i/j/k... etc
+ * [mMwW]:i/j/k...
+
+Valid Examples
+
+ * m:0/1'/1/1000000
+ * W:1'/0/2/2p
+ * 2/10/1p
+ * /0                equivalent to 0/0
+ * /                 equivalent to 0/0
+ * <empty string>    equivalent to 0
+
+===Flipped output tags===
+
+Although BIP32 isn't specific on the issue,
+but one may reasonably infer the following about how paths should be evaluated:
+
+ * If the depth of the last node is less than 3, output an extended private or public key.
+
+ * Otherwise, output a public or private address, depending on the key type.
+
+In order to make path evaluations more flexible we exchange the 'm' for 'M' and the 'w' for 'W'.
+
+If 'w' or 'W' is substituted for 'm' or 'M',
+then path evaluation will produce the opposite type.
+
+The "flipped" 'M' ('W') flips the output type.
+
+
+===Constrained addresses===
+TODO
+
+===Canonical name translation===
+
+Sequences of 32 bit integers do not readily facilitate the embedding of names into addresses.
+
+In order to support this ability, a name may be prepended to a path with an email like syntax.
+
+When software encounters a prepended name, it should strip the name, translate it into a path fragment according to a certain algorithm (see below), then append the fragment to the current path.
+
+Names may be prepended to both absolute and relative paths.
+
+====Name to path fragment translation====
+
+TODO
+
+==Backwards compatibility==
+
+==Reference implementation==
+
+==Test vectors==
